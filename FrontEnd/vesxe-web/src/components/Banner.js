@@ -2,17 +2,57 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../assets/style.css';
+
 const Banner = () => {
   const [oneWay, setOneWay] = useState(true);
   const [departure, setDeparture] = useState('TP. Hồ Chí Minh');
   const [destination, setDestination] = useState('Bà Rịa - Vũng Tàu');
   const [date, setDate] = useState(new Date('2024-09-5'));
-  const [returnDate, setReturnDate] = useState(new Date('2024-09-8'));
+  const [returnDate, setReturnDate] = useState(null); // Ban đầu để null nếu là một chiều
   const [tickets, setTickets] = useState(1);
+  const [error, setError] = useState(''); // State lưu trữ lỗi
 
-  // Create a date object for the current date
-  const today = new Date();
+  const navigate = useNavigate(); // Khởi tạo useNavigate để điều hướng
+
+  // Hàm xử lý khi nhấn nút tìm chuyến xe
+  const handleSearch = () => {
+    // Kiểm tra thông tin đầu vào trước khi điều hướng
+    if (!departure || !destination || !date) {
+      setError('Vui lòng nhập đầy đủ điểm đi, điểm đến và ngày đi.');
+      return;
+    }
+
+    // Reset lỗi khi hợp lệ
+    setError('');
+
+    // Điều hướng đến trang kết quả tìm kiếm và truyền state
+    navigate('/search-results', {
+      state: {
+        departure,
+        destination,
+        date,
+        returnDate,
+        tickets,
+        oneWay,
+      },
+    });
+  };
+
+  // Hàm xử lý thay đổi loại vé (một chiều/khứ hồi)
+  const handleTripTypeChange = (isOneWay) => {
+    setOneWay(isOneWay);
+    if (isOneWay) {
+      setReturnDate(null); // Xóa giá trị ngày về nếu là một chiều
+    }
+  };
+
+  // Giới hạn số vé từ 1 đến 10
+  const handleTicketsChange = (e) => {
+    const value = Math.max(1, Math.min(10, Number(e.target.value))); // Giới hạn số vé từ 1 đến 10
+    setTickets(value);
+  };
 
   return (
     <div className="banner">
@@ -22,7 +62,7 @@ const Banner = () => {
             <input 
               type="radio" 
               checked={oneWay} 
-              onChange={() => setOneWay(true)} 
+              onChange={() => handleTripTypeChange(true)} 
             />
             Một chiều
           </label>
@@ -30,7 +70,7 @@ const Banner = () => {
             <input 
               type="radio" 
               checked={!oneWay} 
-              onChange={() => setOneWay(false)} 
+              onChange={() => handleTripTypeChange(false)} 
             />
             Khứ hồi
           </label>
@@ -43,6 +83,7 @@ const Banner = () => {
               type="text" 
               value={departure} 
               onChange={(e) => setDeparture(e.target.value)} 
+              placeholder="Nhập điểm đi"
             />
           </div>
           <div className="field">
@@ -51,6 +92,7 @@ const Banner = () => {
               type="text" 
               value={destination} 
               onChange={(e) => setDestination(e.target.value)} 
+              placeholder="Nhập điểm đến"
             />
           </div>
           <div className="field">
@@ -59,7 +101,7 @@ const Banner = () => {
               selected={date}
               onChange={(date) => setDate(date)}
               dateFormat="dd/MM/yyyy"
-              minDate={today}  
+              minDate={new Date()}  // Chỉ cho phép chọn ngày từ hôm nay
               className="date-picker"
             />
           </div>
@@ -71,7 +113,7 @@ const Banner = () => {
                 selected={returnDate}
                 onChange={(date) => setReturnDate(date)}
                 dateFormat="dd/MM/yyyy"
-                minDate={today}  
+                minDate={date}  // Ngày về phải sau ngày đi
                 className="date-picker"
               />
             </div>
@@ -81,28 +123,24 @@ const Banner = () => {
             <label>Số vé</label>
             <select 
               value={tickets} 
-              onChange={(e) => setTickets(e.target.value)}
+              onChange={handleTicketsChange}
             >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              {/* Add more options if needed */}
+              {[...Array(10)].map((_, i) => (
+                <option key={i} value={i + 1}>{i + 1}</option>
+              ))}
             </select>
           </div>
         </div>
 
-        <div className="recent-search">
-          <p>Tìm kiếm gần đây</p>
-          <div className="recent-item">
-            <span>{departure} - {destination}</span>
-            <span>{date.toLocaleDateString()}</span>
-            {!oneWay && <span> - {returnDate.toLocaleDateString()}</span>}
-          </div>
-        </div>
+        {/* Hiển thị thông báo lỗi nếu có */}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
-        <button className="search-button">Tìm chuyến xe</button>
+        <button className="search-button" onClick={handleSearch}>
+          Tìm chuyến xe
+        </button>
       </div>
     </div>
   );
 }
+
 export default Banner;

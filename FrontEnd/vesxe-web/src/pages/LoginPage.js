@@ -1,16 +1,17 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
-import '../assets/LoginPage.css'; // Import CSS riêng cho trang đăng nhập
-import Footer from '../components/Footer'; // Import Footer mới tạo
-
-// Import hình ảnh
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import '../assets/LoginPage.css';
+import Footer from '../components/Footer';
 import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/illustration.jpg';
 
 const LoginPage = () => {
-  const [activeTab, setActiveTab] = useState('login'); // State để điều khiển tab hiện tại
-  const [email, setEmail] = useState(''); // State cho email
-  const [password, setPassword] = useState(''); // State cho mật khẩu (chỉ cần cho form đăng nhập)
+  const [activeTab, setActiveTab] = useState('register'); // Mặc định là tab "Đăng ký"
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  const navigate = useNavigate(); // Tạo hook điều hướng
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -22,12 +23,15 @@ const LoginPage = () => {
     e.preventDefault();
     // Logic xử lý đăng nhập
     alert('Đang đăng nhập với email: ' + email);
+    // Bạn có thể điều hướng sau khi đăng nhập thành công, nếu cần.
+    // navigate('/dashboard');
   };
-
+  
   const handleRegister = (e) => {
     e.preventDefault();
-    // Logic xử lý đăng ký
-    alert('Đang đăng ký với email: ' + email);
+    // Giả sử đăng ký thành công, điều hướng sang trang nhập OTP
+    alert('Đăng ký thành công! Chuyển sang trang nhập OTP.');
+    navigate('/otp'); // Chuyển hướng tới trang OTP
   };
 
   return (
@@ -36,10 +40,6 @@ const LoginPage = () => {
         <div className="logo">
           <img src={logo} alt="FUTA Bus Lines Logo" />
         </div>
-        {/* <div className="title">
-          <h1>PHƯƠNG TRANG</h1>
-          <p>Cùng bạn trên mọi nẻo đường</p>
-        </div> */}
       </header>
 
       <div className="login-container">
@@ -61,6 +61,7 @@ const LoginPage = () => {
               Đăng ký
             </button>
           </div>
+
           {activeTab === 'login' && (
             <form onSubmit={handleLogin}>
               <div className="input-group">
@@ -91,6 +92,7 @@ const LoginPage = () => {
               </div>
             </form>
           )}
+
           {activeTab === 'register' && (
             <form onSubmit={handleRegister}>
               <div className="input-group">
@@ -110,7 +112,6 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Thêm Footer vào đây */}
       <Footer />
     </div>
   );
