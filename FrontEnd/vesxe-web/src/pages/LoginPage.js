@@ -1,4 +1,3 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../assets/LoginPage.css';
@@ -10,6 +9,7 @@ const LoginPage = () => {
   const [activeTab, setActiveTab] = useState('register'); // Mặc định là tab "Đăng ký"
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // For displaying errors, if any
   
   const navigate = useNavigate(); // Tạo hook điều hướng
 
@@ -17,19 +17,44 @@ const LoginPage = () => {
     setActiveTab(tab);
     setEmail('');
     setPassword('');
+    setError('');
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Logic xử lý đăng nhập
-    alert('Đang đăng nhập với email: ' + email);
-    // Bạn có thể điều hướng sau khi đăng nhập thành công, nếu cần.
-    // navigate('/dashboard');
+    
+    try {
+      // Making the POST request to your API
+      const response = await fetch('http://localhost:1337/api/auth/local', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      
+      const data = await response.json();
+
+      // Check if the response is successful
+      if (response.ok) {
+        alert('Đăng nhập thành công!');
+        // Redirect to dashboard or another page
+        navigate('/dashboard');
+      } else {
+        // If the login fails, display an error message
+        setError(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
+      }
+    } catch (err) {
+      setError('Lỗi khi kết nối với máy chủ. Vui lòng thử lại!');
+    }
   };
-  
+
   const handleRegister = (e) => {
     e.preventDefault();
-    // Giả sử đăng ký thành công, điều hướng sang trang nhập OTP
     alert('Đăng ký thành công! Chuyển sang trang nhập OTP.');
     navigate('/otp'); // Chuyển hướng tới trang OTP
   };
@@ -86,6 +111,7 @@ const LoginPage = () => {
                   required
                 />
               </div>
+              {error && <p className="error-message">{error}</p>} {/* Display error */}
               <button type="submit" className="login-button">Đăng nhập</button>
               <div className="forgot-password">
                 <a href="#">Quên mật khẩu</a>
