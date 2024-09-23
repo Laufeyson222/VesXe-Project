@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/image/logo.png'; // Import logo từ thư mục assets
@@ -6,23 +5,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons'; // Import icon người dùng từ Font Awesome
 
 const Navbar = () => {
-  // State để kiểm tra xem người dùng có đăng nhập hay không
+  // State để lưu trạng thái đăng nhập và thông tin người dùng
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null); // Lưu thông tin người dùng
 
   // Kiểm tra trạng thái đăng nhập khi component được mount
   useEffect(() => {
-    // Giả sử bạn lưu trạng thái đăng nhập trong localStorage
     const loggedInStatus = localStorage.getItem('isLoggedIn');
     if (loggedInStatus === 'true') {
       setIsLoggedIn(true);
+      const userInfo = JSON.parse(localStorage.getItem('user')); // Lấy thông tin người dùng từ localStorage
+      setUser(userInfo);
     }
   }, []);
 
   const handleLogout = () => {
-    // Xóa trạng thái đăng nhập
+    // Xóa trạng thái đăng nhập và thông tin người dùng
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
-    // Thêm điều hướng tới trang đăng nhập hoặc trang chính
+    setUser(null); // Xóa thông tin người dùng khỏi state
+    // Thêm điều hướng tới trang đăng nhập hoặc trang chính nếu cần
   };
 
   return (
@@ -44,6 +48,8 @@ const Navbar = () => {
           <div className="dropdown-content">
             {isLoggedIn ? (
               <>
+                {/* Hiển thị tên người dùng trong dropdown */}
+                <span style={{color:"black"}} className="user-name">Xin chào, {user.ten || user.email}</span> {/* Tên hoặc email */}
                 <Link to="/profile">Thông tin cá nhân</Link> 
                 <a href="#" onClick={handleLogout}>Đăng xuất</a>
               </>

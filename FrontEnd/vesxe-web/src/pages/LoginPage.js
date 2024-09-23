@@ -24,35 +24,38 @@ const LoginPage = () => {
     e.preventDefault();
     
     try {
-      // Making the POST request to your API
-      const response = await fetch('http://localhost:1337/api/auth/local', {
+      const response = await fetch('http://localhost:1337/api/nguoi-dung/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          
         },
         body: JSON.stringify({
           email: email,
-          password: password,
+          mat_khau: password,
         }),
       });
       
       const data = await response.json();
-
-      // Check if the response is successful
+  
       if (response.ok) {
+        // Lưu token vào localStorage
+        localStorage.setItem('token', data.token);
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isLoggedIn', 'true'); // Lưu trạng thái đăng nhập
+        
         alert('Đăng nhập thành công!');
-        // Redirect to dashboard or another page
-        navigate('/dashboard');
+        // Điều hướng tới trang dashboard
+        navigate('/');
       } else {
-        // If the login fails, display an error message
         setError(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
       }
     } catch (err) {
+      console.log('Lỗi:', err);
       setError('Lỗi khi kết nối với máy chủ. Vui lòng thử lại!');
     }
   };
-
+  
   const handleRegister = (e) => {
     e.preventDefault();
     alert('Đăng ký thành công! Chuyển sang trang nhập OTP.');
